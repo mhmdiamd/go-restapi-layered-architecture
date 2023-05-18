@@ -48,7 +48,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, req web.Category
 }
 
 func (service *CategoryServiceImpl) Update(ctx context.Context, req web.CategoryUpdateRequest) (web.CategoryResponse, error) {
-	// Validation
+	// Validation error checking
 	errValidation := service.Validate.Struct(req)
 	helper.PanicIfError(errValidation)
 
@@ -60,13 +60,16 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, req web.Category
 	defer helper.CommitOrRollback(tx)
 
 	// Check data category if is it exist or not
-	category, err := service.CategoryRepository.FindById(ctx, tx, req.Id)
+	response, err := service.CategoryRepository.FindById(ctx, tx, req.Id)
 
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	category.Name = req.Name
+	category := domain.Category{
+		Id:   response.Id,
+		Name: req.Name,
+	}
 
 	// Update Category
 	updatedCategory := service.CategoryRepository.Update(ctx, tx, category)

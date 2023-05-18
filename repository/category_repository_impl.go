@@ -36,6 +36,8 @@ func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 }
 
 func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
+
+	fmt.Println(category)
 	query := "UPDATE category SET name = $1 WHERE id = $2"
 	rows, err := tx.QueryContext(ctx, query, category.Name, category.Id)
 
@@ -68,7 +70,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	category := domain.Category{}
 
 	if rows.Next() {
-		err := rows.Scan(&category)
+		err := rows.Scan(&category.Id, &category.Name)
 		helper.PanicIfError(err)
 		return category, nil
 	} else {
